@@ -5,6 +5,7 @@ from player_dino import *
 
 # здесь определяются константы,
 # классы и функции
+counter = 0
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (125, 125, 125)
@@ -20,14 +21,25 @@ H = 400
 
 r = 30
 vx = -1
+g = 10
+v0 = -10
 # cactus = (x, y, w, h)
-cactus = [Cactus(7 * W // 8, H // 2 - 2 * r, r, 2 * r)]
-pl = Player(W // 8, H // 2 - r)
+#pl = Player(W // 8, H // 2 - r - 40)
+
 # здесь происходит инициация,
 # создание объектов
 pygame.init()
 sc = pygame.display.set_mode((W, H))
 clock = pygame.time.Clock()
+player_surf = pygame.image.load('player 2.png')
+cactus_surf = pygame.image.load('cactus.png')
+player_surf.set_colorkey((255, 255, 255))
+cactus_surf.set_colorkey((255,255,255))
+
+pl = Player(W // 8 - 50, H // 2 - 91, player_surf)
+cactus = Cactus(7 * W // 8, H // 2, cactus_surf)
+cactuses = pg.sprite.Group()
+cactuses.add(cactus)
 
 # если надо до цикла отобразить
 # какие-то объекты, обновляем экран
@@ -35,7 +47,7 @@ pygame.display.update()
 
 # главный цикл
 while True:
-
+    counter += 1
     # задержка
     clock.tick(FPS)
 
@@ -47,35 +59,29 @@ while True:
             print(i)
             if i.key == 32:
                 if pl.phase == 0:
-                    pl.phase = 60
-        # вверх 1073741906
-        # вниз 1073741905
-        # влево 1073741904
-        # вправо 1073741903
-        # пробел - 32
+                    pl.phase = 121
+                    pl.speed_y = v0
 
+    cactuses.update(g, FPS, H)
 
+    if counter % (3 * FPS) == 0:
+        new_cactus = Cactus(7 * W // 8, H // 2, cactus_surf)
+        #cactus.append(new_cactus)
+        cactuses.add(new_cactus)
 
-    # --------
-    # изменение объектов
-    # --------
-    for cact in cactus:
-        cact.x += cact.speed_x
+    pl.update(g,FPS,H)
 
-
-    if pl.phase > 30:
-        pl.speed_y = -3
-    elif pl.phase > 0:
-        pl.speed_y = 3
-    elif pl.phase == 0:
-        pl.speed_y = 0
     if pl.phase > 0:
         pl.phase -= 1
-    pl.y += pl.speed_y
-
+        pl.speed_y += g / FPS
+        pl.y += 30 * pl.speed_y / FPS
+    if pl.phase == 0:
+        pl.speed_y = 0
+        pl.y = H // 2 - r
 
     sc.fill(WHITE)
-    pygame.draw.circle(sc, YELLOW, (pl.x, pl.y), pl.size, 4)
-    for cact in cactus:
-        pygame.draw.rect(sc, PINK, (cact.x, cact.y, cact.w, cact.h))
+    pygame.draw.line(sc, BLACK, (0, H // 2), (W, H // 2))
+    sc.blit(pl.image, pl.rect)
+
+    cactuses.draw(sc)
     pygame.display.update()
