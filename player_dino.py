@@ -1,4 +1,6 @@
 import pygame as pg
+from random import choice
+
 #class Player():
 #    size = 30
  #   speed_y = 0
@@ -28,20 +30,30 @@ class Player(pg.sprite.Sprite):
             self.rect.y = H // 2 - 91
 
 class Cactus(pg.sprite.Sprite):
-    def __init__(self, x, y, surf):
+
+    score = 0
+
+    def __init__(self, x, y, surf_list):
         pg.sprite.Sprite.__init__(self)
-        self.image = surf
+        self.image = surf_list[0]
+        #self.image = choice(surf_list)
         self.rect = self.image.get_rect(
             bottomleft=(x, y))
+        self.mask = pg.mask.from_surface(self.image)
+        self.mask.invert()
+
+        #self.mask.to_surface(self.image)
+
         self.size_x = 20
         self.size_y = 20
-        self.speed_x = -2
+        self.speed_x = -4
 
     def update(self, g, FPS, H):
         if self.rect.x > 0:
             self.rect.x += self.speed_x
         else:
             self.kill()
+            Cactus.score += 1
 
 
 
